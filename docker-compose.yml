@@ -1,0 +1,27 @@
+version: '3.3'
+
+services:
+  nginx:
+    image: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./conf/nginx/conf.d:/etc/nginx/conf.d
+      - ./www:/usr/share/nginx/html
+
+  php:
+    image: devel-php:latest
+    volumes:
+      - ./www:/usr/share/nginx/html
+
+  mysql:
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+
+volumes:
+    data:
