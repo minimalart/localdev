@@ -3,6 +3,7 @@ version: '3.3'
 services:
   nginx:
     image: nginx
+    container_name: nginx-dev
     ports:
       - "80:80"
     volumes:
@@ -11,11 +12,14 @@ services:
 
   php:
     image: devel-php:latest
+    container_name: php-dev
     volumes:
+      - ./conf/php/php.ini:/usr/local/etc/php/php.ini
       - ./www:/usr/share/nginx/html
 
   mysql:
     image: mysql:5.7
+    container_name: mysql-dev
     ports:
       - "3306:3306"
     volumes:
