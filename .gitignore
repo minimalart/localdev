@@ -4,3 +4,11 @@
 .DS_Store
 .Trashes
 .ssh
+
+.env*
+logs/
+nginx/
+mysql/
+www/
+!.env_example
+!nginx/default*
