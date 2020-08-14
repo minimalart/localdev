@@ -1,32 +1,44 @@
 # Local environment for wordpress development
 
-## Installation
-  1. Download and install Docker
-  2. Clone this repository
-  3. Rename `.env-example` to `.env` (and optional customize values)
+## Setup and configuration
 
+A `.env-example` file has been included to more easily set docker-compose variables without having to modify the docker-compose.yml file itself.
 
-# Create a Self-Signed Certificates
+Default values have been provided as a means of getting up and running quickly for testing purposes. It is up to the user to modify these to best suit their deployment preferences.
+
+Create a file named .env from the .env_example file and adjust to suit your deployment
+
+    cp .env-example .env
+
+## Edit yout host file
+
+    sudo vim /etc/hosts
+
+Add the line:
+    
+    127.0.0.1   dev.local
+
+## Create Self-Signed Certificates
 **Do not use self-signed certificates in production !**
 For online certificates, use Let's Encrypt instead.
 
 
-## Certificate authority (CA)
+### Certificate authority (CA)
 
 Generate `RootCA.pem`, `RootCA.key` & `RootCA.crt`:
 
-    openssl req -x509 -nodes -new -sha256 -days 1024 -newkey rsa:2048 -keyout ./certs/RootCA.key -out ./certs/RootCA.pem -subj "/C=US/CN=Local-Root-CA"
+    openssl req -x509 -nodes -new -sha256 -days 1024 -newkey rsa:2048 -keyout ./certs/RootCA.key -out ./certs/RootCA.pem -subj "/C=US/CN=Devlocal-Root-CA"
 	
     openssl x509 -outform pem -in ./certs/RootCA.pem -out ./certs/RootCA.crt
   
-Note that `Example-Root-CA` is an example, you can customize the name.
+Note that `Devlocal-Root-CA` is an example, you can customize the name.
 
-## Domain name certificate
+### Domain name certificate
 
 Let's say you have two domains `fake1.local` and `fake2.local` that are hosted on your local machine
 for development (using the `hosts` file to point them to `127.0.0.1`).
 
-First, create a file `domains.ext` that lists all your local domains:
+First, create a file `domains.ext` inside the `certs` directory that lists all your local domains:
 
     authorityKeyIdentifier=keyid,issuer
     basicConstraints=CA:FALSE
@@ -34,24 +46,24 @@ First, create a file `domains.ext` that lists all your local domains:
     subjectAltName = @alt_names
     [alt_names]
     DNS.1 = localhost
-    DNS.2 = fake1.local
+    DNS.2 = dev.local
     DNS.3 = fake2.local
 
 Generate `localhost.key`, `localhost.csr`, and `localhost.crt`:
 
     openssl req -new -nodes -newkey rsa:2048 -keyout ./certs/localhost.key -out ./certs/localhost.csr -subj "/C=US/ST=BA/L=AV/O=Local-Certificates/CN=localhost.local"
     
-    openssl x509 -req -sha256 -days 1024 -in ./certs/localhost.csr -CA ./certs/RootCA.pem -CAkey ./certs/RootCA.key -CAcreateserial -extfile ./certs/domains.ext -out ./certs/localhost.crt
+    openssl x509 -req -sha256 -days 360 -in ./certs/localhost.csr -CA ./certs/RootCA.pem -CAkey ./certs/RootCA.key -CAcreateserial -extfile ./certs/domains.ext -out ./certs/localhost.crt
 
 Note that the country / state / city / name in the first command  can be customized.  
 
-## Create a a strong Diffie-Hellman group 
+### Create a a strong Diffie-Hellman group 
 
 While we are using OpenSSL, we should also create a strong Diffie-Hellman group, which is used in negotiating Perfect Forward Secrecy with clients:
 
     openssl dhparam -out ./certs/dhparam.pem 2048
 
-# Configuring Nginx to Use SSL
+## Configuring Nginx to Use SSL
 
 First, let’s create a new Nginx configuration snippet in the /etc/nginx/snippets directory.
 
@@ -62,7 +74,7 @@ Within this file, we need to set the `ssl_certificate` directive to our certific
     ssl_certificate /etc/ssl/certs/localhost.crt;
     ssl_certificate_key /etc/ssl/private/localhost.key;
 
-## Creating a Configuration Snippet with Strong Encryption Settings
+### Creating a Configuration Snippet with Strong Encryption Settings
 
 Next, we will create another snippet that will define some SSL settings. This will set Nginx up with a strong SSL cipher suite and enable some advanced features that will help keep our server secure.
 
@@ -91,7 +103,7 @@ Copy the following into your `ssl-params.conf` snippet file:
     add_header X-Content-Type-Options nosniff;
     add_header X-XSS-Protection "1; mode=block";
 
-# Trust the local CA
+## Trust the local CA
 
 At this point, the site would load with a warning about self-signed certificates.
 In order to get a green lock, your new local CA has to be added to the trusted Root Certificate Authorities.
