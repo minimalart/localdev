@@ -38,10 +38,10 @@ services:
       - '443:443'
     volumes:
       - ${NGINX_CONF_DIR:-./nginx}:/etc/nginx/conf.d
+      - ${NGINX_SNIPPETS_DIR:-./nginx}:/etc/nginx/snippets
       - ${NGINX_LOG_DIR:-./logs/nginx}:/var/log/nginx
       - ${WORDPRESS_DATA_DIR:-./wordpress}:/var/www/html
-      - ${SSL_CERTS_DIR:-./certs}:/etc/letsencrypt
-      - ${SSL_CERTS_DATA_DIR:-./certs-data}:/data/letsencrypt
+      - ${SSL_CERTS_DIR:-./certs}:/etc/certs
     depends_on:
       - wordpress
     restart: always
