@@ -5,7 +5,7 @@ services:
     image: wordpress:${WORDPRESS_VERSION:-php7.4-fpm}
     container_name: wordpress
     volumes:
-      - ./www:/var/www/html
+      - ./www:/var/www/html:delegated
     environment:
       - WORDPRESS_DB_NAME=${WORDPRESS_DB_NAME:-wordpress}
       - WORDPRESS_TABLE_PREFIX=${WORDPRESS_TABLE_PREFIX:-wp_}
@@ -22,7 +22,7 @@ services:
     ports:
       - '3306:3306'
     volumes:
-      - ./mysql:/var/lib/mysql
+      - ./mysql:/var/lib/mysql:delegated
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
       - MYSQL_USER=${MYSQL_USER:-root}
@@ -37,11 +37,11 @@ services:
       - '80:80'
       - '443:443'
     volumes:
-      - ${NGINX_CONF_DIR:-./nginx}:/etc/nginx/conf.d
-      - ${NGINX_SNIPPETS_DIR:-./nginx}:/etc/nginx/snippets
-      - ${NGINX_LOG_DIR:-./logs/nginx}:/var/log/nginx
-      - ${WORDPRESS_DATA_DIR:-./wordpress}:/var/www/html
-      - ${SSL_CERTS_DIR:-./certs}:/etc/certs
+      - ${NGINX_CONF_DIR:-./nginx}:/etc/nginx/conf.d:delegated
+      - ${NGINX_SNIPPETS_DIR:-./nginx}:/etc/nginx/snippets:delegated
+      - ${NGINX_LOG_DIR:-./logs/nginx}:/var/log/nginx:delegated
+      - ${WORDPRESS_DATA_DIR:-./wordpress}:/var/www/html:delegated
+      - ${SSL_CERTS_DIR:-./certs}:/etc/certs:delegated
     depends_on:
       - wordpress
     restart: always
